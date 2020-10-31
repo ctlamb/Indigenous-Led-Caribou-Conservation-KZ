@@ -1,0 +1,15 @@
+---
+title: "Indigenous-led Caribou Conservation"
+author: "Clayton Lamb"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: github_document
+---
+```{r render, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='hide'}
+rmarkdown::render(here::here('Indigenous-Led-Caribou-Conservation-KZ.Rmd'),
+                  output_file = "README.md")
+```
+
+
+#Load Data
+```{r Load packages and data, results='hide', message=FALSE, warning=FALSE}
+library(ggmcmc)
