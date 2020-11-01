@@ -1,9 +1,10 @@
 Indigenous-led Caribou Conservation
 ================
-Clayton Lamb
+Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
+Columbia
 01 November, 2020
 
-\#Load Data
+\#\#\#Load Data
 
 ``` r
 library(here)
@@ -24,8 +25,9 @@ library(knitr)
 library(tidyverse)
 
 
-##Run to get local data up to git. Too large to upload naturally to git (files>100mb)
-###save output, using piggyback because too large for github, then delete file so it doesn't upload
+#Run to get local data up to git. Too large to upload naturally to git (files>100mb)
+
+##Save output, using piggyback because too large for github, then delete file so it doesn't upload
 # ##need a github token
 # ##get yours here:
 # browse_github_pat()
@@ -47,17 +49,17 @@ library(tidyverse)
 #           overwrite=TRUE)
 
 
-###download data here
+##Download data here
 # piggyback::pb_download(file="spatial_data.zip", 
 #             repo = "ctlamb/Indigenous-Led-Caribou-Conservation-KZ",
 #             dest = here::here(),
 #             overwrite = TRUE,
 #             show_progress = TRUE)
 
-##unzip and you will have the folder called "data" with all the data required to run this
+##Unzip and you will have the folder called "data" with all the data required to run this
 ```
 
-\#Set ggplot themes
+\#\#\#Set ggplot themes
 
 ``` r
 ##ggplot color/fillscales
@@ -99,9 +101,10 @@ theme_Publication <- function(...){
 }
 ```
 
-\#Study Area Map
+\#\#\#Study Area Map
 
 ``` r
+#Load caribou herd data and clean up
 herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"))%>%
   mutate(HERD_NAME=as.character(HERD_NAME))%>%
   mutate(HERD_NAME=case_when(HERD_NAME%in%c("Scott", "Moberly")~"Klinse-Za", TRUE~HERD_NAME))%>%
@@ -109,14 +112,34 @@ herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"
   drop_na(RISK_STAT)%>%
   select(HERD_NAME)%>%
   st_transform(3005)
+```
 
+    ## Reading layer `BC_Caribou_Range_CL' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/caribouherds/BC_Caribou_Range_CL.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 75 features and 13 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 348545.7 ymin: 462263.9 xmax: 1733581 ymax: 1720555
+    ## epsg (SRID):    3005
+    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+
+``` r
 herds.ab <- st_read(here::here("data", "caribouherds", "Caribou_Range.shp"))%>%
   dplyr::rename(HERD_NAME=SUBUNIT)%>%
   mutate(HERD_NAME=as.character(HERD_NAME))%>%
   select(HERD_NAME)%>%
   st_transform(3005)%>%
   st_buffer(300)
+```
 
+    ## Reading layer `Caribou_Range' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/caribouherds/Caribou_Range.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 24 features and 9 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 170844.4 ymin: 5689840 xmax: 819119.1 ymax: 6659319
+    ## epsg (SRID):    3400
+    ## proj4string:    +proj=tmerc +lat_0=0 +lon_0=-115 +k=0.9992 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+
+``` r
 herds <- rbind(herds.ab,herds.bc)%>%
   group_by(HERD_NAME)%>%
   summarize()
@@ -131,38 +154,93 @@ clip.extent <- extent(herds.cmg%>%filter(HERD_NAME%in%c("Burnt Pine", "Kennedy S
 herds <- herds%>%filter(!HERD_NAME%in%herds.cmg$HERD_NAME)
 
 
+#Treaty 8 boundary
 t8 <- st_read(here::here("data", "FN", "Traite_Pre_1975_Treaty_SHP.shp"))%>%
   filter(ENAME%in%c("Treaty #8 (1899)"))%>%
   st_transform(3005)
+```
 
+    ## Reading layer `Traite_Pre_1975_Treaty_SHP' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/Traite_Pre_1975_Treaty_SHP.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 17 features and 5 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XYZ
+    ## bbox:           xmin: -136.451 ymin: 41.72291 xmax: -59.68318 ymax: 70.58782
+    ## z_range:        zmin: 0 zmax: 0
+    ## epsg (SRID):    4269
+    ## proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
+
+``` r
 t8d <- st_read(here::here("data", "FN", "FNT_TRTY_A_polygon.shp"))%>%
   filter(TREATY%in%c("Treaty 8 - Disputed Area"))%>%
   st_transform(3005)
+```
 
+    ## Reading layer `FNT_TRTY_A_polygon' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/FNT_TRTY_A_polygon.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 70 features and 14 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 712252.1 ymin: 328212.6 xmax: 1393732 ymax: 1682799
+    ## epsg (SRID):    3005
+    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
 
+``` r
+#First Nations Reserves
 rv <- st_read(here::here("data", "FN", "AL_TA_BC_2_116_eng.shp"))%>%
   filter(NAME1%in%c("WEST MOBERLY LAKE 168A", "EAST MOBERLY LAKE 169"))%>%
   st_transform(3005)%>%
   select(NAME1)%>%
   mutate(lab=c("West Moberly FN", "Saulteau FN"))
+```
 
+    ## Reading layer `AL_TA_BC_2_116_eng' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/AL_TA_BC_2_116_eng.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 1588 features and 26 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: -133.7046 ymin: 48.31458 xmax: -115.0498 ymax: 59.93831
+    ## epsg (SRID):    4269
+    ## proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
+
+``` r
+#Administrative Boundaries
 bord <- st_read(here::here("data", "borders", "North_America.shp"))%>%
   st_transform(3005)
+```
 
+    ## Reading layer `North_America' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/borders/North_America.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 70 features and 2 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: -178.2176 ymin: 18.92179 xmax: -52.62783 ymax: 83.11506
+    ## epsg (SRID):    4326
+    ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
+
+``` r
 lake <- st_read(here::here("data", "lakes", "ne_10m_lakes.shp"))%>%
   st_transform(3005)
+```
 
+    ## Reading layer `ne_10m_lakes' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/lakes/ne_10m_lakes.shp' using driver `ESRI Shapefile'
+    ## Simple feature collection with 1343 features and 10 fields
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: -165.9656 ymin: -50.66967 xmax: 176.0938 ymax: 81.95521
+    ## epsg (SRID):    4326
+    ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
+
+``` r
+#Elevation
 dem.raster <- raster(here::here("data", "dem", "dem_KZ.tif"))
 
 
-##remove ocean
+#Remove ocean
 dem.raster[values(dem.raster)==0] <- NA
 
+#Derive some topographic products
 slope.raster <- terrain(dem.raster, opt='slope')
 aspect.raster <- terrain(dem.raster, opt='aspect')
 hill.raster <- hillShade(slope.raster, aspect.raster, 40, 270)
 
-##make df
+##make dataframe from rasters for ggplot plotting
 dem<- dem.raster%>%
   aggregate(15)%>%
   as.data.frame(xy = TRUE)
@@ -172,7 +250,7 @@ hill<- hill.raster%>%
   as.data.frame(xy = TRUE)%>%
   drop_na(layer)
 
-##make df for smaller map
+##make dataframe for smaller map
 dem.small<- dem.raster%>%
   crop(extent(c(10.5E5,14E5,9.5E5,12.5E5)))%>%
   as.data.frame(xy = TRUE)
@@ -186,7 +264,8 @@ cmg.extent <- extent(herds.cmg)%>%
   st_as_sf()%>%
   st_set_crs(st_crs(herds.cmg))
 
-##PLOT
+#PLOT
+#Inset Map of western North America
 westernNA <- ggplot()+
   geom_sf(data = bord, inherit.aes = FALSE, fill="grey70", color="black", size=0.1)+
   geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color="black", size=0.1)+
@@ -244,6 +323,7 @@ leg<- ggpubr::get_legend(leg)%>%
 
 ggsave(plot=leg,here::here("outputs", "SA_legend.png"), height=0.6, width=6.5)
 
+#Study area map
 sa.map <- ggplot()+
   geom_raster(data = dem.small, aes(x = x, y = y, fill = layer),alpha=0.5) +
   geom_raster(data = hill.small, aes(x = x, y = y, fill = layer, alpha=1-layer),fill="gray20") +
@@ -282,14 +362,15 @@ sa.map <- ggplot()+
 
 ggsave(plot=sa.map,here::here("outputs", "cmg_map.png"), height=4, width=5)
 
+##Plot Together
 sa.map
 ```
 
-![](README_files/figure-gfm/sa%20map-1.png)<!-- --> \#Partnership
+![](README_files/figure-gfm/sa%20map-1.png)<!-- --> \#\#\#Partnership
 Agreement
 
 ``` r
-####PA
+####Partnership Agreement Area
 pa <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
   st_transform(3005)
 
@@ -333,6 +414,8 @@ leg <-ggplot()+
 
 leg <- ggpubr::get_legend(leg)%>%
     as_ggplot()
+
+##PLOT
 
 PA <- ggplot()+
   geom_raster(data = dem.small, aes(x = x, y = y,fill = layer),alpha=0.5) +
@@ -409,18 +492,18 @@ pa.herds <- pa.herds%>%
   rbind(unprotected)
 
 #mapview(pa.herds["Zone"])
-##make sure herd areas add up to total
+##make sure herd areas add up to total based of PA AREA
 herd.areas <- cmg.bc%>%
   mutate(herd_area=st_area(.))%>%
   as_tibble()%>%
   select(-geometry)
 
-pa.herds%>%
-  as_tibble()%>%
-  ungroup()%>%
-  group_by(HERD_NAME)%>%
-  mutate(area=sum(as.numeric(area)))%>%
-  distinct(HERD_NAME, .keep_all=TRUE)
+# pa.herds%>%
+#   as_tibble()%>%
+#   ungroup()%>%
+#   group_by(HERD_NAME)%>%
+#   mutate(area=sum(as.numeric(area)))%>%
+#   distinct(HERD_NAME, .keep_all=TRUE)
 
 ##add totals to pa.herds
 pa.herds<- pa.herds%>%
@@ -451,49 +534,19 @@ pa.herds <- pa.herds%>%ungroup()%>%
          HERD_NAME=fct_relevel(HERD_NAME,"Klinse-Za", "Kennedy Siding", "Burnt Pine", "Quintette", "Narraway"),
          Zone.l=fct_relevel(Zone.l, "Extraction Moratorium","Indigenous Woodland","Park Expansion","Pre-existing Park","Restoration Focus", "Extraction Reviewed","Unprotected Land"))
 
-##sum
-pa.herds%>%
-  filter(Zone!="P")%>%
-  filter(class%in%c("high"))%>%
-  summarise(area=sum(area)/1E6)/
-  (st_area(cmg.bc)/1E6)%>%as.numeric()%>%sum()*100
-
+##summary stats
+##Area of high protection
 pa.herds%>%
   filter(class%in%c("high"))%>%
   summarise(area=sum(area)/1E6)/
   (st_area(cmg.bc)/1E6)%>%as.numeric()%>%sum()*100
 
+##Area of high protection that wasn't already a park
 pa.herds%>%
   filter(Zone!="P")%>%
   filter(class%in%c("high"))%>%
   summarise(area=sum(area)/1E6)
 
-pa.herds%>%
-  filter(Zone!="P")%>%
-  filter(class%in%c("moderate"))%>%
-  summarise(area=sum(area)/1E6)
-
-pa.herds%>%
-  filter(Zone!="P")%>%
-  filter(class%in%c("high","moderate"))%>%
-  summarise(area=sum(area)/1E6)
-
-
-pa.herds%>%
-  filter(HERD_NAME%in%"Klinse-Za")%>%
-  filter(Zone.l%in%c("Park Expansion"))%>%
-  summarise(area=sum(area)/1E6)
-
-pa.herds%>%
-  filter(Zone.l%in%c("Extraction Moratorium"))%>%
-  summarise(area=sum(area)/1E6)
-
-pa.herds%>%
-  filter(HERD_NAME%in%"Klinse-Za")%>%
-  filter(Zone.l%in%c("Park Expansion"))%>%
-  summarise(area=sum(area)/1E6)
-
-st_area(ipa)
 
 ###PLOT
 areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(Zone.l,25)))+
@@ -546,8 +599,8 @@ write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
 kable(pa.table)
 ```
 
-\#Klinse-Za Population Trend- From Integrated Population Model of McNay
-et al 2020
+\#\#\#Klinse-Za Population Trend- From Integrated Population Model of
+McNay et al 2020
 
 ``` r
 ###load data
@@ -620,15 +673,15 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
 ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4)
 ```
 
-\#Plot Disturbances
+\#\#\#Plot Disturbances
 
 ``` r
+#Load disturbances
 mines <- st_read(here::here("data", "HumanFootprints", "CL_mines.shp"))%>%
   st_transform(herds.cmg%>%st_crs())
 
 cb <- st_read(here::here("data", "cutblocks","VEG_CONSOLIDATED_CUT_BLOCKS_SP","CNS_CUT_BL_polygon.shp"))%>%
   st_transform(herds.cmg%>%st_crs())
-
 
 cb.clip <- cb%>%
   st_make_valid()%>%
@@ -644,6 +697,7 @@ b.yr <- cb.clip%>%
   mutate(herd_area=(herd_area%>%as.numeric())/1E6)%>%
   mutate(cut_p=(cut/herd_area)*100)
 
+##plot annual area logged through time
 ggplot(data=b.yr%>%filter(HARVESTYR>1980), aes(x=HARVESTYR,y=cut_p))+
   geom_col()+
   facet_wrap(vars(HERD_NAME))+
@@ -666,6 +720,7 @@ ggplot(data=b.yr%>%filter(HARVESTYR>1980), aes(x=HARVESTYR,y=cut_p))+
 ![](README_files/figure-gfm/Ploy%20Disturbance-1.png)<!-- -->
 
 ``` r
+##PLOT entire CMG
 c.rast <- cb%>%
   filter(HARVESTYR%in%1980:2012)%>%
   mutate(count=1)%>%
@@ -768,7 +823,7 @@ ggplot()+
 ggsave(here::here("outputs", "disturbance_map1.png"), height=4.5, width=5)
 
 
-
+##PLOT KZ ONLY
 c.rast.small <- cb%>%
   filter(HARVESTYR%in%1980:2012)%>%
   mutate(count=1)%>%
@@ -818,7 +873,7 @@ ggplot()+
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
 
 
-###how many hectatrs cut during the KZ caribou recovery actions ongoing?
+###how many hectatres cut during the KZ caribou recovery actions ongoing?
 cb%>%
   filter(HARVESTYR%in%2013:2020)%>%
   st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
