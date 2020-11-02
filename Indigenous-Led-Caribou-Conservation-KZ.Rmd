@@ -783,7 +783,10 @@ ggplot()+
   geom_sf(data = park.clip, inherit.aes = FALSE, fill="grey", color=NA, alpha=0.6)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.5)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=1)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks")), inherit.aes = FALSE, fill=NA, color="brown", size=1)+
+  geom_sf(data = herds%>%
+            rbind(herds.cmg)%>%
+            filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+          inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
   #scale_fill_gradientn(colours=brewer.pal(8,"YlGn")%>%rev(), na.value="light blue")+
   scale_fill_gradientn(colours=paletteer_dynamic("cartography::green.pal",n=10)%>%rev(), na.value="light blue")+
@@ -816,6 +819,8 @@ kable(pa.table)
 ##size of new conservation area overlapping with CMG herds
 pa.table%>%
   filter(!Zone%in%c("B2","U","P"))%>%
-  summarise(area=sum(`Area (km2)`))
+  summarise(area=sum(`Area (km2)`))%>%
+  as.numeric()%>%
+  print()
 
 ```
