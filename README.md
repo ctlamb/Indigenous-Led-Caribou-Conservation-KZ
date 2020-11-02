@@ -2,7 +2,7 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-01 November, 2020
+02 November, 2020
 
 \#\#\#Load Data
 
@@ -148,7 +148,7 @@ rv <- st_read(here::here("data", "FN", "AL_TA_BC_2_116_eng.shp"))%>%
   filter(NAME1%in%c("WEST MOBERLY LAKE 168A", "EAST MOBERLY LAKE 169"))%>%
   st_transform(3005)%>%
   select(NAME1)%>%
-  mutate(lab=c("West Moberly FN", "Saulteau FN"))
+  mutate(lab=c("West Moberly First Nations", "Saulteau First Nations"))
 
 #Administrative Boundaries
 bord <- st_read(here::here("data", "borders", "North_America.shp"))%>%
@@ -188,7 +188,7 @@ hill.small<- hill.raster%>%
   crop(extent(c(10.5E5,14E5,9.5E5,12.5E5)))%>%
   as.data.frame(xy = TRUE)
 
-cmg.extent <- extent(herds.cmg)%>%
+cmg.extent <- extent(c(10.5E5,14E5,9.5E5,12.5E5))%>%
   as('SpatialPolygons')%>%
   st_as_sf()%>%
   st_set_crs(st_crs(herds.cmg))
@@ -277,14 +277,15 @@ sa.map <- ggplot()+
   geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())), aes(X, Y, label = HERD_NAME), colour = "grey90",size=2.5)+
   ggrepel::geom_label_repel(
     data = rv,
-    aes(label = lab, geometry = geometry),
+    aes(label = str_wrap(lab,13), geometry = geometry),
     stat = "sf_coordinates",
     size=3,
     min.segment.length=unit(0,"lines"),
     segment.size  = 0.4,
-    nudge_x=40000,
-    nudge_y=15000,
-    hjust = 0
+    nudge_x=c(20000,20000),
+    nudge_y=c(25000,-15000),
+    hjust = 0,
+    force=10
   )+
   annotation_scale(location = "br", width_hint = 0.25, text_col="grey90", text_cex = 0.8)+
   annotation_north_arrow(height = unit(1, "cm"), width = unit(1, "cm"),location = "tl", which_north = "true", style=north_arrow_orienteering(text_col="grey", text_size = 5))
@@ -357,7 +358,10 @@ PA <- ggplot()+
   geom_sf(data = ipa, inherit.aes = FALSE, fill=NA, color="black", linetype="dashed", size=0.3)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.5)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=0.6)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks")), inherit.aes = FALSE, fill=NA, color="brown", size=0.6)+
+  geom_sf(data = herds%>%
+            rbind(herds.cmg)%>%
+            filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+          inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = park, inherit.aes = FALSE, fill="grey", color=NA, alpha=0.7)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
   scale_fill_gradientn(colours=brewer.pal(3,"YlGn")%>%rev(), na.value="light blue")+
@@ -371,16 +375,17 @@ PA <- ggplot()+
   scale_y_continuous(limits = c(10.1E5,12.5E5), expand = c(0, 0)) +
   annotation_custom(ggplotGrob(leg), xmin =11.4E5, xmax = 12.35E5, ymin = 10.05E5, ymax = 10.95E5)+
   geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())), aes(X, Y, label = HERD_NAME), colour = "grey90",size=3)+
-  ggrepel::geom_label_repel(
+   ggrepel::geom_label_repel(
     data = rv,
-    aes(label = lab, geometry = geometry),
+    aes(label = str_wrap(lab,13), geometry = geometry),
     stat = "sf_coordinates",
     size=3,
     min.segment.length=unit(0,"lines"),
     segment.size  = 0.4,
-    nudge_x=40000,
-    nudge_y=15000,
-    hjust = 0
+    nudge_x=c(20000,20000),
+    nudge_y=c(18000,-10000),
+    hjust = 0,
+    force=600
   )+
   annotation_scale(location = "br", width_hint = 0.25, text_col="grey90", text_cex = 0.8)+
   annotation_north_arrow(height = unit(1, "cm"), width = unit(1, "cm"),location = "tr", which_north = "true", style=north_arrow_orienteering(text_col="grey", text_size = 5))
@@ -729,7 +734,10 @@ ggplot()+
   geom_sf(data = park.clip, inherit.aes = FALSE, fill="grey", color=NA, alpha=0.6)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.5)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=1)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks")), inherit.aes = FALSE, fill=NA, color="brown", size=1)+
+  geom_sf(data = herds%>%
+            rbind(herds.cmg)%>%
+            filter(HERD_NAME%in%c("Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+          inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
   #scale_fill_gradientn(colours=brewer.pal(8,"YlGn")%>%rev(), na.value="light blue")+
   scale_fill_gradientn(colours=paletteer_dynamic("cartography::green.pal",n=10)%>%rev(), na.value="light blue")+
@@ -822,11 +830,6 @@ cb%>%
     ## 1 11026.36 [ha] MULTIPOLYGON (((1150057 119...
 
 ``` r
-##size of new conservation area overlapping with CMG herds
-pa.table%>%
-  filter(!Zone%in%c("B2","U","P"))%>%
-  summarise(area=sum(`Area (km2)`))
-
 ## Partnership Agreement table
 kable(pa.table)
 ```
@@ -860,3 +863,10 @@ kable(pa.table)
 | Narraway       |                  6372 | A2   | Extraction Moratorium       |     16.5 |       1049 | high     |
 | Narraway       |                  6372 | P    | Pre-existing Park           |     20.2 |       1289 | high     |
 | Narraway       |                  6372 | U    | Unprotected Land            |     62.7 |       3992 | low      |
+
+``` r
+##size of new conservation area overlapping with CMG herds
+pa.table%>%
+  filter(!Zone%in%c("B2","U","P"))%>%
+  summarise(area=sum(`Area (km2)`))
+```
