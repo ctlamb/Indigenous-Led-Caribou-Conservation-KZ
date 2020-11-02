@@ -114,7 +114,7 @@ theme_Publication <- function(...){
 
 
 ###Study Area Map
-```{r sa map, message=FALSE, warning=FALSE}
+```{r sa map,results='hide', message=FALSE, warning=FALSE, fig.height=4, fig.width=5 }
 #Load caribou herd data and clean up
 herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"))%>%
   mutate(HERD_NAME=as.character(HERD_NAME))%>%
@@ -305,8 +305,10 @@ ggsave(plot=sa.map,here::here("outputs", "cmg_map.png"), height=4, width=5)
 ##Plot Together
 sa.map
 ```
+
+
 ###Partnership Agreement
-```{r PA map, results='hide', message=FALSE, warning=FALSE}
+```{r PA map, fig.height=5, fig.width=10, message=FALSE, warning=FALSE, results='hide'}
 ####Partnership Agreement Area
 pa <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
   st_transform(3005)
@@ -514,33 +516,61 @@ pa.map
 
 ##table of PA
 pa.table <-pa.herds%>%
-            select(HERD_NAME, herd_area, Zone, area_p, area,class)%>%
-            mutate(herd_area=round(herd_area/1E6,0),
-                   area_p=round(area_p,1),
-                   area=round(area/1E6,0))%>%
-            arrange(HERD_NAME, Zone)%>%
+            select(HERD_NAME, herd_area, Zone, Zone.l,area_p, area,class)%>%
+            mutate(herd_area=round(herd_area/1E6,0)%>%as.numeric(),
+                   area_p=round(area_p,1)%>%as.numeric(),
+                   area=round(area/1E6,0)%>%as.numeric())%>%
+            arrange(HERD_NAME, Zone,Zone.l)%>%
             as_tibble()%>%
             select(-geometry)%>%
             rename(Population=HERD_NAME,
                    "Area (%)"=area_p,
                    "Population area (km2)"=herd_area,
                    "Area (km2)"=area,
-                   Class=class)
+                   Class=class,
+                   Description=Zone.l)
 
 write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
-
-kable(pa.table)
 ```
 
 
 
 ###Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
-```{r Pop trend plot, results='hide', message=FALSE, warning=FALSE}
+```{r Pop trend plot, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, results='hide'}
 ###load data
 df<-read_csv(here::here("data","abundance_MF.csv"))
 
 
-##plot
+##plot PRE
+ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
+  geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
+  geom_line() +
+  geom_point(color="grey50", size=1) +
+  ggtitle("Klinse-Za Population Trend")+
+  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
+  theme_bw()+
+  xlab("Year")+
+  ylab("Population estimate")+
+  geom_label_repel(data=data.frame(label=c("Indigenous-led\nrecovery starts"),
+                                   yrs=c(2013),
+                                   est=c(38))%>%
+                     mutate(label=as.factor(label)),
+                   aes(x=yrs,y=est, label=label),
+                   size=3,
+                   min.segment.length=unit(0,"lines"),
+                   segment.size  = 0.3,
+                   segment.color = "grey80",
+                   nudge_y = 100,
+                   nudge_x=-3,
+                   hjust = 0,
+                   force=0.1
+  )
+
+ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4)
+
+
+
+##plot ALL
 ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
   geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
   geom_line() +
@@ -567,40 +597,11 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
 
 ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
 
-
-
-
-##plot
-ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
-  geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
-  geom_line() +
-  geom_point(color="grey50", size=1) +
-  ggtitle("Klinse-Za Population Trend")+
-  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
-  theme_bw()+
-  xlab("Year")+
-  ylab("Population estimate")+
-  geom_label_repel(data=data.frame(label=c("Indigenous-led\nrecovery starts"),
-                                   yrs=c(2013),
-                                   est=c(38))%>%
-                     mutate(label=as.factor(label)),
-                   aes(x=yrs,y=est, label=label),
-                   size=3,
-                   min.segment.length=unit(0,"lines"),
-                   segment.size  = 0.3,
-                   segment.color = "grey80",
-                   nudge_y = 100,
-                   nudge_x=-3,
-                   hjust = 0,
-                   force=0.1
-  )
-
-ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4)
 ```
 
 
 ###Plot Disturbances
-```{r Ploy Disturbance, results='hide', message=FALSE, warning=FALSE}
+```{r Plot Disturbance, results='hide', message=FALSE, warning=FALSE}
 #Load disturbances
 mines <- st_read(here::here("data", "HumanFootprints", "CL_mines.shp"))%>%
   st_transform(herds.cmg%>%st_crs())
@@ -790,8 +791,10 @@ ggplot()+
 
 
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
+```
 
-
+##Summary stats
+```{r summary stats,message=FALSE, warning=FALSE}
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
 cb%>%
   filter(HARVESTYR%in%2013:2020)%>%
@@ -799,9 +802,12 @@ cb%>%
   mutate(area=units::set_units(st_area(.),"ha"))%>%
   summarise(sum=sum(area))
 
+##size of new conservation area overlapping with CMG herds
+pa.table%>%
+  filter(!Zone%in%c("B2","U","P"))%>%
+  summarise(area=sum(`Area (km2)`))
 
-# cb%>%
-#   filter(HARVESTYR%in%2013:2020)%>%
-#   st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
-#   mapview()
+## Partnership Agreement table
+kable(pa.table)
+
 ```

@@ -112,34 +112,14 @@ herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"
   drop_na(RISK_STAT)%>%
   select(HERD_NAME)%>%
   st_transform(3005)
-```
 
-    ## Reading layer `BC_Caribou_Range_CL' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/caribouherds/BC_Caribou_Range_CL.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 75 features and 13 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 348545.7 ymin: 462263.9 xmax: 1733581 ymax: 1720555
-    ## epsg (SRID):    3005
-    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
-
-``` r
 herds.ab <- st_read(here::here("data", "caribouherds", "Caribou_Range.shp"))%>%
   dplyr::rename(HERD_NAME=SUBUNIT)%>%
   mutate(HERD_NAME=as.character(HERD_NAME))%>%
   select(HERD_NAME)%>%
   st_transform(3005)%>%
   st_buffer(300)
-```
 
-    ## Reading layer `Caribou_Range' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/caribouherds/Caribou_Range.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 24 features and 9 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 170844.4 ymin: 5689840 xmax: 819119.1 ymax: 6659319
-    ## epsg (SRID):    3400
-    ## proj4string:    +proj=tmerc +lat_0=0 +lon_0=-115 +k=0.9992 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
-
-``` r
 herds <- rbind(herds.ab,herds.bc)%>%
   group_by(HERD_NAME)%>%
   summarize()
@@ -158,76 +138,25 @@ herds <- herds%>%filter(!HERD_NAME%in%herds.cmg$HERD_NAME)
 t8 <- st_read(here::here("data", "FN", "Traite_Pre_1975_Treaty_SHP.shp"))%>%
   filter(ENAME%in%c("Treaty #8 (1899)"))%>%
   st_transform(3005)
-```
 
-    ## Reading layer `Traite_Pre_1975_Treaty_SHP' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/Traite_Pre_1975_Treaty_SHP.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 17 features and 5 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XYZ
-    ## bbox:           xmin: -136.451 ymin: 41.72291 xmax: -59.68318 ymax: 70.58782
-    ## z_range:        zmin: 0 zmax: 0
-    ## epsg (SRID):    4269
-    ## proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
-
-``` r
 t8d <- st_read(here::here("data", "FN", "FNT_TRTY_A_polygon.shp"))%>%
   filter(TREATY%in%c("Treaty 8 - Disputed Area"))%>%
   st_transform(3005)
-```
 
-    ## Reading layer `FNT_TRTY_A_polygon' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/FNT_TRTY_A_polygon.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 70 features and 14 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: 712252.1 ymin: 328212.6 xmax: 1393732 ymax: 1682799
-    ## epsg (SRID):    3005
-    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
-
-``` r
 #First Nations Reserves
 rv <- st_read(here::here("data", "FN", "AL_TA_BC_2_116_eng.shp"))%>%
   filter(NAME1%in%c("WEST MOBERLY LAKE 168A", "EAST MOBERLY LAKE 169"))%>%
   st_transform(3005)%>%
   select(NAME1)%>%
   mutate(lab=c("West Moberly FN", "Saulteau FN"))
-```
 
-    ## Reading layer `AL_TA_BC_2_116_eng' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/FN/AL_TA_BC_2_116_eng.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 1588 features and 26 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: -133.7046 ymin: 48.31458 xmax: -115.0498 ymax: 59.93831
-    ## epsg (SRID):    4269
-    ## proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
-
-``` r
 #Administrative Boundaries
 bord <- st_read(here::here("data", "borders", "North_America.shp"))%>%
   st_transform(3005)
-```
 
-    ## Reading layer `North_America' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/borders/North_America.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 70 features and 2 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: -178.2176 ymin: 18.92179 xmax: -52.62783 ymax: 83.11506
-    ## epsg (SRID):    4326
-    ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
-
-``` r
 lake <- st_read(here::here("data", "lakes", "ne_10m_lakes.shp"))%>%
   st_transform(3005)
-```
 
-    ## Reading layer `ne_10m_lakes' from data source `/Users/clayton.lamb/Google Drive/Documents/University/PDF/analyses/KZstory/Indigenous-Led-Caribou-Conservation-KZ/data/lakes/ne_10m_lakes.shp' using driver `ESRI Shapefile'
-    ## Simple feature collection with 1343 features and 10 fields
-    ## geometry type:  MULTIPOLYGON
-    ## dimension:      XY
-    ## bbox:           xmin: -165.9656 ymin: -50.66967 xmax: 176.0938 ymax: 81.95521
-    ## epsg (SRID):    4326
-    ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
-
-``` r
 #Elevation
 dem.raster <- raster(here::here("data", "dem", "dem_KZ.tif"))
 
@@ -366,8 +295,9 @@ ggsave(plot=sa.map,here::here("outputs", "cmg_map.png"), height=4, width=5)
 sa.map
 ```
 
-![](README_files/figure-gfm/sa%20map-1.png)<!-- --> \#\#\#Partnership
-Agreement
+![](README_files/figure-gfm/sa%20map-1.png)<!-- -->
+
+\#\#\#Partnership Agreement
 
 ``` r
 ####Partnership Agreement Area
@@ -581,22 +511,21 @@ pa.map
 ``` r
 ##table of PA
 pa.table <-pa.herds%>%
-            select(HERD_NAME, herd_area, Zone, area_p, area,class)%>%
-            mutate(herd_area=round(herd_area/1E6,0),
-                   area_p=round(area_p,1),
-                   area=round(area/1E6,0))%>%
-            arrange(HERD_NAME, Zone)%>%
+            select(HERD_NAME, herd_area, Zone, Zone.l,area_p, area,class)%>%
+            mutate(herd_area=round(herd_area/1E6,0)%>%as.numeric(),
+                   area_p=round(area_p,1)%>%as.numeric(),
+                   area=round(area/1E6,0)%>%as.numeric())%>%
+            arrange(HERD_NAME, Zone,Zone.l)%>%
             as_tibble()%>%
             select(-geometry)%>%
             rename(Population=HERD_NAME,
                    "Area (%)"=area_p,
                    "Population area (km2)"=herd_area,
                    "Area (km2)"=area,
-                   Class=class)
+                   Class=class,
+                   Description=Zone.l)
 
 write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
-
-kable(pa.table)
 ```
 
 \#\#\#Klinse-Za Population Trend- From Integrated Population Model of
@@ -607,41 +536,7 @@ McNay et al 2020
 df<-read_csv(here::here("data","abundance_MF.csv"))
 
 
-##plot
-ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
-  geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
-  geom_line() +
-  geom_point(color="grey50", size=1) +
-  ggtitle("Klinse-Za Population Trend",subtitle = "Recovery following Indigenous-led actions")+
-  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
-  theme_bw()+
-  xlab("Year")+
-  ylab("Population estimate")+
-  geom_label_repel(data=data.frame(label=c("Partnership Agreement\nsigned","Indigenous-led\nrecovery starts"),
-                                 yrs=c(2020,2013),
-                                 est=c(88,38))%>%
-                     mutate(label=as.factor(label)),
-                   aes(x=yrs,y=est, label=label),
-    size=3,
-    min.segment.length=unit(0,"lines"),
-    segment.size  = 0.3,
-    segment.color = "grey80",
-    nudge_y = 100,
-    nudge_x=-3,
-    hjust = 0,
-    force=0.1
-  )
-```
-
-![](README_files/figure-gfm/Pop%20trend%20plot-1.png)<!-- -->
-
-``` r
-ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
-
-
-
-
-##plot
+##plot PRE
 ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
   geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
   geom_line() +
@@ -667,10 +562,43 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
   )
 ```
 
-![](README_files/figure-gfm/Pop%20trend%20plot-2.png)<!-- -->
+![](README_files/figure-gfm/Pop%20trend%20plot-1.png)<!-- -->
 
 ``` r
 ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4)
+
+
+
+##plot ALL
+ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
+  geom_ribbon(alpha=0.2, aes(ymin=q2.5, ymax=q97.5))+
+  geom_line() +
+  geom_point(color="grey50", size=1) +
+  ggtitle("Klinse-Za Population Trend",subtitle = "Recovery following Indigenous-led actions")+
+  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
+  theme_bw()+
+  xlab("Year")+
+  ylab("Population estimate")+
+  geom_label_repel(data=data.frame(label=c("Partnership Agreement\nsigned","Indigenous-led\nrecovery starts"),
+                                 yrs=c(2020,2013),
+                                 est=c(88,38))%>%
+                     mutate(label=as.factor(label)),
+                   aes(x=yrs,y=est, label=label),
+    size=3,
+    min.segment.length=unit(0,"lines"),
+    segment.size  = 0.3,
+    segment.color = "grey80",
+    nudge_y = 100,
+    nudge_x=-3,
+    hjust = 0,
+    force=0.1
+  )
+```
+
+![](README_files/figure-gfm/Pop%20trend%20plot-2.png)<!-- -->
+
+``` r
+ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
 ```
 
 \#\#\#Plot Disturbances
@@ -717,7 +645,7 @@ ggplot(data=b.yr%>%filter(HARVESTYR>1980), aes(x=HARVESTYR,y=cut_p))+
         axis.text.x=element_text(angle=45, vjust=1, hjust=1))
 ```
 
-![](README_files/figure-gfm/Ploy%20Disturbance-1.png)<!-- -->
+![](README_files/figure-gfm/Plot%20Disturbance-1.png)<!-- -->
 
 ``` r
 ##PLOT entire CMG
@@ -817,7 +745,7 @@ ggplot()+
   annotation_north_arrow(height = unit(1, "cm"), width = unit(1, "cm"),location = "tr", which_north = "true", style=north_arrow_orienteering(text_col="grey", text_size = 5))
 ```
 
-![](README_files/figure-gfm/Ploy%20Disturbance-2.png)<!-- -->
+![](README_files/figure-gfm/Plot%20Disturbance-2.png)<!-- -->
 
 ``` r
 ggsave(here::here("outputs", "disturbance_map1.png"), height=4.5, width=5)
@@ -867,22 +795,68 @@ ggplot()+
   scale_y_continuous(limits = c(11.35E5,12.43E5), expand = c(0, 0))
 ```
 
-![](README_files/figure-gfm/Ploy%20Disturbance-3.png)<!-- -->
+![](README_files/figure-gfm/Plot%20Disturbance-3.png)<!-- -->
 
 ``` r
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
+```
 
+\#\#Summary stats
 
+``` r
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
 cb%>%
   filter(HARVESTYR%in%2013:2020)%>%
   st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
   mutate(area=units::set_units(st_area(.),"ha"))%>%
   summarise(sum=sum(area))
-
-
-# cb%>%
-#   filter(HARVESTYR%in%2013:2020)%>%
-#   st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
-#   mapview()
 ```
+
+    ## Simple feature collection with 1 feature and 1 field
+    ## geometry type:  MULTIPOLYGON
+    ## dimension:      XY
+    ## bbox:           xmin: 1137065 ymin: 1143034 xmax: 1239390 ymax: 1242020
+    ## epsg (SRID):    3005
+    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+    ##             sum                       geometry
+    ## 1 11026.36 [ha] MULTIPOLYGON (((1150057 119...
+
+``` r
+##size of new conservation area overlapping with CMG herds
+pa.table%>%
+  filter(!Zone%in%c("B2","U","P"))%>%
+  summarise(area=sum(`Area (km2)`))
+
+## Partnership Agreement table
+kable(pa.table)
+```
+
+| Population     | Population area (km2) | Zone | Description                 | Area (%) | Area (km2) | Class    |
+| :------------- | --------------------: | :--- | :-------------------------- | -------: | ---------: | :------- |
+| Klinse-Za      |                  5506 | A1   | Extraction Reviewed         |      0.2 |         10 | moderate |
+| Klinse-Za      |                  5506 | A2   | Extraction Moratorium       |     21.2 |       1167 | high     |
+| Klinse-Za      |                  5506 | B1   | Extraction Reviewed         |     15.9 |        876 | moderate |
+| Klinse-Za      |                  5506 | B2   | Pre-existing Park Expansion |      5.8 |        319 | high     |
+| Klinse-Za      |                  5506 | B3   | Park Expansion              |     30.4 |       1672 | high     |
+| Klinse-Za      |                  5506 | B4   | Restoration Focus           |      5.8 |        321 | high     |
+| Klinse-Za      |                  5506 | B5   | Indigenous Woodland         |      4.4 |        243 | high     |
+| Klinse-Za      |                  5506 | P    | Pre-existing Park           |      1.8 |        100 | high     |
+| Klinse-Za      |                  5506 | U    | Unprotected Land            |     14.5 |        799 | low      |
+| Kennedy Siding |                  2962 | A1   | Extraction Reviewed         |      0.0 |          1 | moderate |
+| Kennedy Siding |                  2962 | A2   | Extraction Moratorium       |     34.2 |       1012 | high     |
+| Kennedy Siding |                  2962 | B1   | Extraction Reviewed         |      3.3 |         98 | moderate |
+| Kennedy Siding |                  2962 | B3   | Park Expansion              |      0.3 |         10 | high     |
+| Kennedy Siding |                  2962 | P    | Pre-existing Park           |     14.6 |        433 | high     |
+| Kennedy Siding |                  2962 | U    | Unprotected Land            |     47.5 |       1408 | low      |
+| Burnt Pine     |                   710 | A1   | Extraction Reviewed         |      0.4 |          3 | moderate |
+| Burnt Pine     |                   710 | A2   | Extraction Moratorium       |     21.4 |        152 | high     |
+| Burnt Pine     |                   710 | B1   | Extraction Reviewed         |     14.2 |        101 | moderate |
+| Burnt Pine     |                   710 | U    | Unprotected Land            |     64.0 |        454 | low      |
+| Quintette      |                  6078 | A1   | Extraction Reviewed         |      2.2 |        132 | moderate |
+| Quintette      |                  6078 | A2   | Extraction Moratorium       |     18.1 |       1098 | high     |
+| Quintette      |                  6078 | P    | Pre-existing Park           |      9.9 |        602 | high     |
+| Quintette      |                  6078 | U    | Unprotected Land            |     69.9 |       4247 | low      |
+| Narraway       |                  6372 | A1   | Extraction Reviewed         |      0.6 |         41 | moderate |
+| Narraway       |                  6372 | A2   | Extraction Moratorium       |     16.5 |       1049 | high     |
+| Narraway       |                  6372 | P    | Pre-existing Park           |     20.2 |       1289 | high     |
+| Narraway       |                  6372 | U    | Unprotected Land            |     62.7 |       3992 | low      |
