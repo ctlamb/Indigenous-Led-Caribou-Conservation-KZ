@@ -2,7 +2,7 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-04 November, 2020
+05 November, 2020
 
 \#\#\#Load Data
 
@@ -635,7 +635,7 @@ ggplot(data=b.yr%>%filter(HARVESTYR>1980), aes(x=HARVESTYR,y=cut_p))+
   geom_col()+
   facet_wrap(vars(HERD_NAME))+
   ylab("Percent area logged")+
-  xlab("Protection")+
+  xlab("Year")+
   labs(fill="Zone")+
   theme_Publication()+
   scale_fill_brewer(palette = "Set2")+
