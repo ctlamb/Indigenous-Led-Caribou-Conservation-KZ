@@ -12,7 +12,7 @@ rmarkdown::render(here::here('Indigenous-Led-Caribou-Conservation-KZ.Rmd'),
 ```
 
 
-###Load Data
+### Load Data
 ```{r Load packages and data, results='hide', message=FALSE, warning=FALSE}
 library(here)
 library(ggrepel)
@@ -68,7 +68,7 @@ library(tidyverse)
 
 
 
-###Set ggplot themes
+### Set ggplot themes
 ```{r Load ggplot themes, results='hide', message=FALSE, warning=FALSE}
 ##ggplot color/fillscales
 scale_fill_Publication <- function(...){
@@ -113,7 +113,7 @@ theme_Publication <- function(...){
 
 
 
-###Study Area Map
+### Study Area Map
 ```{r sa map,results='hide', message=FALSE, warning=FALSE, fig.height=4, fig.width=5 }
 #Load caribou herd data and clean up
 herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"))%>%
@@ -211,7 +211,7 @@ westernNA <- ggplot()+
   geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color="black", size=0.1)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color=NA, size=0.1, alpha=0.6)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="grey30", size=0.1, alpha=0.2)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
   geom_sf(data = t8d, inherit.aes = FALSE, fill=NA, color="white", size=0.2, linetype="dashed")+
   geom_sf(data = t8, inherit.aes = FALSE, fill=NA, color="white", size=0.3)+
   geom_sf(data = cmg.extent, inherit.aes = FALSE, fill=NA, color="red", size=0.5, linetype="dotted")+
@@ -232,7 +232,7 @@ westernNA <- ggplot()+
 
 ##legend
 leg <-ggplot()+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, aes(fill="Extirpated"), alpha=0.5)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, aes(fill="Extirpated"), alpha=0.5)+
   geom_sf(data = herds, inherit.aes = FALSE, aes(color="Central Mountain Group Caribou"), size=0.5, alpha=0.5)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, aes(fill="Mountain & Boreal Caribou"), size=1, alpha=0.2)+
   scale_x_continuous(limits = c(11.3E5,13.92E5), expand = c(0, 0)) +
@@ -308,7 +308,7 @@ sa.map
 ```
 
 
-###Partnership Agreement
+### Partnership Agreement
 ```{r PA map, fig.height=5, fig.width=11, message=FALSE, warning=FALSE, results='hide'}
 ####Partnership Agreement Area
 pa <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
@@ -540,7 +540,7 @@ write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
 
 
 
-###Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
+### Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
 ```{r Pop trend plot, fig.height=4, fig.width=4, message=FALSE, warning=FALSE, results='hide'}
 ###load data
 df<-read_csv(here::here("data","abundance_MF.csv"))
@@ -605,7 +605,7 @@ ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
 ```
 
 
-###Plot Disturbances
+### Plot Disturbances
 ```{r Plot Disturbance, results='hide', message=FALSE, warning=FALSE}
 #Load disturbances
 mines <- st_read(here::here("data", "HumanFootprints", "CL_mines.shp"))%>%
@@ -804,7 +804,7 @@ ggplot()+
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
 ```
 
-##Summary stats
+### Summary stats
 ```{r summary stats,message=FALSE, warning=FALSE}
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
 cb%>%

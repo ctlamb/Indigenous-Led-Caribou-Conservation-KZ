@@ -2,9 +2,9 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-05 November, 2020
+10 November, 2020
 
-\#\#\#Load Data
+### Load Data
 
 ``` r
 library(here)
@@ -59,7 +59,7 @@ library(tidyverse)
 ##Unzip and you will have the folder called "data" with all the data required to run this
 ```
 
-\#\#\#Set ggplot themes
+### Set ggplot themes
 
 ``` r
 ##ggplot color/fillscales
@@ -101,7 +101,7 @@ theme_Publication <- function(...){
 }
 ```
 
-\#\#\#Study Area Map
+### Study Area Map
 
 ``` r
 #Load caribou herd data and clean up
@@ -200,7 +200,7 @@ westernNA <- ggplot()+
   geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color="black", size=0.1)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color=NA, size=0.1, alpha=0.6)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="grey30", size=0.1, alpha=0.2)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
   geom_sf(data = t8d, inherit.aes = FALSE, fill=NA, color="white", size=0.2, linetype="dashed")+
   geom_sf(data = t8, inherit.aes = FALSE, fill=NA, color="white", size=0.3)+
   geom_sf(data = cmg.extent, inherit.aes = FALSE, fill=NA, color="red", size=0.5, linetype="dotted")+
@@ -221,7 +221,7 @@ westernNA <- ggplot()+
 
 ##legend
 leg <-ggplot()+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, aes(fill="Extirpated"), alpha=0.5)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, aes(fill="Extirpated"), alpha=0.5)+
   geom_sf(data = herds, inherit.aes = FALSE, aes(color="Central Mountain Group Caribou"), size=0.5, alpha=0.5)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, aes(fill="Mountain & Boreal Caribou"), size=1, alpha=0.2)+
   scale_x_continuous(limits = c(11.3E5,13.92E5), expand = c(0, 0)) +
@@ -298,7 +298,7 @@ sa.map
 
 ![](README_files/figure-gfm/sa%20map-1.png)<!-- -->
 
-\#\#\#Partnership Agreement
+### Partnership Agreement
 
 ``` r
 ####Partnership Agreement Area
@@ -533,8 +533,7 @@ pa.table <-pa.herds%>%
 write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
 ```
 
-\#\#\#Klinse-Za Population Trend- From Integrated Population Model of
-McNay et al 2020
+### Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
 
 ``` r
 ###load data
@@ -606,7 +605,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
 ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
 ```
 
-\#\#\#Plot Disturbances
+### Plot Disturbances
 
 ``` r
 #Load disturbances
@@ -812,7 +811,7 @@ ggplot()+
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
 ```
 
-\#\#Summary stats
+### Summary stats
 
 ``` r
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
