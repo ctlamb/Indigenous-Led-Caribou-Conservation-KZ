@@ -824,7 +824,7 @@ cb%>%
     summarise(sum=sum(area)%>%as.numeric())%>%
   ggplot(aes(x=HARVESTYR,y=sum))+
   geom_col()+
-  ylab("Percent area logged")+
+  ylab("Area logged (ha)")+
   xlab("Year")+
   theme_Publication()+
   scale_fill_brewer(palette = "Set2")+
