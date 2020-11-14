@@ -2,7 +2,7 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-10 November, 2020
+13 November, 2020
 
 ### Load Data
 
@@ -815,6 +815,8 @@ ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
 
 ``` r
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
+st_erase = function(x, y) st_difference(x%>%st_make_valid(), st_union(st_combine(y))%>%st_make_valid())
+
 cb%>%
   filter(HARVESTYR%in%2013:2020)%>%
   st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
@@ -832,6 +834,40 @@ cb%>%
     ## 1 11026.36 [ha] MULTIPOLYGON (((1150057 119...
 
 ``` r
+cb%>%
+  filter(HARVESTYR%in%2013:2020)%>%
+  st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
+  mutate(area=units::set_units(st_area(.),"ha"))%>%
+  tibble()%>%
+  group_by(HARVESTYR)%>%
+    summarise(sum=sum(area)%>%as.numeric())%>%
+  ggplot(aes(x=HARVESTYR,y=sum))+
+  geom_col()+
+  ylab("Percent area logged")+
+  xlab("Year")+
+  theme_Publication()+
+  scale_fill_brewer(palette = "Set2")+
+  theme(legend.position = c(0.85,0.255),
+        legend.direction = "vertical",
+        legend.key.size= unit(0.5, "cm"),
+        legend.spacing = unit(0.05, "cm"),
+        legend.text = element_text(size = rel(0.7)),
+        legend.title = element_text(size = rel(0.9)),
+        legend.background = element_rect(fill = "white"),
+        legend.box.background = element_rect(fill = "white"),
+        axis.text.x=element_text(angle=45, vjust=1, hjust=1))
+```
+
+![](README_files/figure-gfm/summary%20stats-1.png)<!-- -->
+
+``` r
+##check another way, yes all good 11021.46 [ha]
+# a <-herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za")%>%
+#   st_erase(cb%>%
+#   filter(HARVESTYR%in%2013:2020))
+# units::set_units(st_area(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za")),"ha")-units::set_units(st_area(a),"ha")
+  
+
 ## Partnership Agreement table
 kable(pa.table)
 ```
