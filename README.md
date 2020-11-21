@@ -2,7 +2,7 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-13 November, 2020
+20 November, 2020
 
 ### Load Data
 
@@ -23,7 +23,6 @@ library(piggyback)
 library(usethis)
 library(knitr)
 library(tidyverse)
-
 
 #Run to get local data up to git. Too large to upload naturally to git (files>100mb)
 
@@ -157,6 +156,14 @@ bord <- st_read(here::here("data", "borders", "North_America.shp"))%>%
 lake <- st_read(here::here("data", "lakes", "ne_10m_lakes.shp"))%>%
   st_transform(3005)
 
+#Dams
+dam <- tibble(y=56.017459,
+              x=-122.207585,
+              name="Dam")%>%
+  st_as_sf(coords=c("x","y"),
+           crs=4326)%>%
+  st_transform(3005)
+
 #Elevation
 dem.raster <- raster(here::here("data", "dem", "dem_KZ.tif"))
 
@@ -197,12 +204,12 @@ cmg.extent <- extent(c(10.5E5,14E5,9.5E5,12.5E5))%>%
 #Inset Map of western North America
 westernNA <- ggplot()+
   geom_sf(data = bord, inherit.aes = FALSE, fill="grey70", color="black", size=0.1)+
-  geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color="black", size=0.1)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color=NA, size=0.1, alpha=0.6)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="grey30", size=0.1, alpha=0.2)+
   geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
   geom_sf(data = t8d, inherit.aes = FALSE, fill=NA, color="white", size=0.2, linetype="dashed")+
   geom_sf(data = t8, inherit.aes = FALSE, fill=NA, color="white", size=0.3)+
+  geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color=NA)+
   geom_sf(data = cmg.extent, inherit.aes = FALSE, fill=NA, color="red", size=0.5, linetype="dotted")+
   scale_x_continuous(limits = c(2E5,20E5), expand = c(0, 0)) +
   scale_y_continuous(limits = c(1E5,17.2E5), expand = c(0, 0)) +
@@ -257,7 +264,7 @@ sa.map <- ggplot()+
   geom_raster(data = dem.small, aes(x = x, y = y, fill = layer),alpha=0.5) +
   geom_raster(data = hill.small, aes(x = x, y = y, fill = layer, alpha=1-layer),fill="gray20") +
   geom_sf(data = bord, inherit.aes = FALSE, fill=NA, color="black", size=0.1)+
-  geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color="black", size=0.1)+
+  geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color=NA, size=0.1)+
   geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="brown", color="brown", alpha=0.5)+
   geom_sf(data = herds%>%filter(!HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.5)+
   geom_sf(data = herds%>%filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.2)+
@@ -374,7 +381,7 @@ PA <- ggplot()+
   scale_x_continuous(limits = c(11.3E5,13.92E5), expand = c(0, 0)) +
   scale_y_continuous(limits = c(10.1E5,12.5E5), expand = c(0, 0)) +
   annotation_custom(ggplotGrob(leg), xmin =11.4E5, xmax = 12.35E5, ymin = 10.05E5, ymax = 10.95E5)+
-  geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())), aes(X, Y, label = HERD_NAME), colour = "grey90",size=3)+
+  geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())), aes(X, Y, label = HERD_NAME), colour = "grey95",size=4)+
    ggrepel::geom_label_repel(
     data = rv,
     aes(label = str_wrap(lab,13), geometry = geometry),
@@ -487,7 +494,7 @@ pa.herds%>%
 areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(Zone.l,25)))+
   geom_col()+
   facet_wrap(vars(HERD_NAME))+
-  ylab("Percent area")+
+  ylab("Area (%)")+
   xlab("Protection")+
   labs(fill="Zone")+
   theme_Publication()+
@@ -738,6 +745,7 @@ ggplot()+
             filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
           inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
+    geom_sf(data = dam,  inherit.aes = FALSE,  color="black", fill="white", size=3, pch=25)+
   #scale_fill_gradientn(colours=brewer.pal(8,"YlGn")%>%rev(), na.value="light blue")+
   scale_fill_gradientn(colours=paletteer_dynamic("cartography::green.pal",n=10)%>%rev(), na.value="light blue")+
   guides(fill=FALSE, color=FALSE, alpha=FALSE)+
@@ -793,6 +801,8 @@ ggplot()+
             filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
           inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
+      geom_sf(data = dam,  inherit.aes = FALSE,  color="black", fill="white", size=5, pch=25)+
+    geom_sf_label(data = dam, aes(label = name),nudge_x=8000, nudge_y=4000, size=4)+
   #scale_fill_gradientn(colours=brewer.pal(8,"YlGn")%>%rev(), na.value="light blue")+
   scale_fill_gradientn(colours=paletteer_dynamic("cartography::green.pal",n=10)%>%rev(), na.value="light blue")+
   guides(fill=FALSE, color=FALSE, alpha=FALSE)+
