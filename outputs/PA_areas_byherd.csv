@@ -1,15 +1,15 @@
-Population,Population area (km2),Zone,Description,Area (%),Area (km2),Class
+Population,Population area (km2),ZONE,Description,Area (%),Area (km2),Class
 Klinse-Za,5506,A1,Extraction Reviewed,0.2,10,moderate
 Klinse-Za,5506,A2,Extraction Moratorium,21.2,1167,high
 Klinse-Za,5506,B1,Extraction Reviewed,15.9,876,moderate
-Klinse-Za,5506,B2,Pre-existing Park Expansion,5.8,319,high
-Klinse-Za,5506,B3,Park Expansion,30.4,1672,high
+Klinse-Za,5506,B2,Pre-existing Park Expansion,5.8,318,high
+Klinse-Za,5506,B3,Park Expansion,30.4,1673,high
 Klinse-Za,5506,B4,Restoration Focus,5.8,321,high
 Klinse-Za,5506,B5,Indigenous Woodland,4.4,243,high
 Klinse-Za,5506,P,Pre-existing Park,1.8,100,high
 Klinse-Za,5506,U,Unprotected Land,14.5,799,low
-Kennedy Siding,2962,A1,Extraction Reviewed,0,1,moderate
-Kennedy Siding,2962,A2,Extraction Moratorium,34.2,1012,high
+Kennedy Siding,2962,A1,Extraction Reviewed,0.1,4,moderate
+Kennedy Siding,2962,A2,Extraction Moratorium,34.1,1009,high
 Kennedy Siding,2962,B1,Extraction Reviewed,3.3,98,moderate
 Kennedy Siding,2962,B3,Park Expansion,0.3,10,high
 Kennedy Siding,2962,P,Pre-existing Park,14.6,433,high
@@ -18,8 +18,8 @@ Burnt Pine,710,A1,Extraction Reviewed,0.4,3,moderate
 Burnt Pine,710,A2,Extraction Moratorium,21.4,152,high
 Burnt Pine,710,B1,Extraction Reviewed,14.2,101,moderate
 Burnt Pine,710,U,Unprotected Land,64,454,low
-Quintette,6078,A1,Extraction Reviewed,2.2,132,moderate
-Quintette,6078,A2,Extraction Moratorium,18.1,1098,high
+Quintette,6078,A1,Extraction Reviewed,2.8,169,moderate
+Quintette,6078,A2,Extraction Moratorium,17.4,1060,high
 Quintette,6078,P,Pre-existing Park,9.9,602,high
 Quintette,6078,U,Unprotected Land,69.9,4247,low
 Narraway,6372,A1,Extraction Reviewed,0.6,41,moderate

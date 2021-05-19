@@ -2,9 +2,9 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-20 November, 2020
+19 May, 2021
 
-### Load Data
+## Load Data
 
 ``` r
 library(here)
@@ -58,7 +58,7 @@ library(tidyverse)
 ##Unzip and you will have the folder called "data" with all the data required to run this
 ```
 
-### Set ggplot themes
+## Set ggplot themes
 
 ``` r
 ##ggplot color/fillscales
@@ -100,7 +100,7 @@ theme_Publication <- function(...){
 }
 ```
 
-### Study Area Map
+## Study Area Map
 
 ``` r
 #Load caribou herd data and clean up
@@ -305,11 +305,14 @@ sa.map
 
 ![](README_files/figure-gfm/sa%20map-1.png)<!-- -->
 
-### Partnership Agreement
+## Partnership Agreement
 
 ``` r
 ####Partnership Agreement Area
-pa <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
+# pa <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
+#   st_transform(3005)
+
+pa <- st_read(here::here("data", "PA_fromScott", "May_12_2021_Draft_PA_Zone_Shapefiles",  "Draft_Partnership_Agreement_Proposed_June_2021.shp"))%>%
   st_transform(3005)
 
 ##existing parks
@@ -320,16 +323,16 @@ park <- st_read(here::here("data", "parks", "TA_PEP_SVW_polygon.shp"))%>%
 
 ##pull out IPA
 ipa <- pa%>%
-  dplyr::filter(Zone%in%c("B2","B2 (Park)","B3","B3 (Park)"))%>%
+  dplyr::filter(ZONE%in%c("B2","B2 (Park)","B3","B3 (Park)"))%>%
   st_make_valid()%>%
-  group_by(Date)%>%
+  group_by()%>%
   summarise()
 
 
 ##zones with decent security=A2,B2,B3,B4
 pa <- pa%>%
-  mutate(class=case_when(Zone%in%c("A2","B2 (Park)","B3 (Park)","B4", "B2", "B3", "B5")~"high",
-                         Zone%in%c("A1","B1")~"moderate")%>%as.character())%>%
+  mutate(class=case_when(ZONE%in%c("A2","B2 (Park)","B3 (Park)","B4", "B2", "B3", "B5")~"high",
+                         ZONE%in%c("A1","B1")~"moderate")%>%as.character())%>%
   st_make_valid()%>%
   group_by(class)%>%
   summarise()
@@ -402,38 +405,39 @@ PA <- ggplot()+
 ##remove PA areas that were already park
 park.clip <-park%>%
   st_union()%>%
-  st_sf(Zone="P")%>%
-  select(Zone)%>%
+  st_sf(ZONE="P")%>%
+  select(ZONE)%>%
   rename("geometry"=".")
 
-pa.herds <- st_read(here::here("data", "PA_fromJean", "Caribou_Zones_20200228.shp"))%>%
-  mutate(Zone=as.character(Zone))%>%
-  filter(!Zone %in% c("B2 (Park)","B3 (Park)"))%>%
+pa.herds <- st_read(here::here("data", "PA_fromScott", "May_12_2021_Draft_PA_Zone_Shapefiles",  "Draft_Partnership_Agreement_Proposed_June_2021.shp"))%>%
+  mutate(ZONE=as.character(ZONE))%>%
+  filter(!ZONE %in% c("B2 (Park)","B3 (Park)"))%>%
   st_transform(3005)%>%
   st_make_valid()%>%
   st_difference(park.clip%>%st_buffer(5))%>%##remove parks
-  select(Zone)
+  select(ZONE)
 
 cmg.bc <- herds.cmg%>%
-  st_intersection(bord%>%filter(FID_canada==9))%>%
+  st_make_valid()%>%
+  st_intersection(bord%>%filter(FID_canada==9)%>% st_make_valid())%>%
   filter(HERD_NAME %in% c("Burnt Pine", "Kennedy Siding", "Klinse-Za","Quintette","Narraway"))
 
 pa.herds <- pa.herds%>%
   rbind(park.clip)%>%
   st_intersection(cmg.bc)%>%##clip to bc
   mutate(area=st_area(.))%>%
-  select(HERD_NAME,area,Zone)
+  select(HERD_NAME,area,ZONE)
 
 unprotected <-st_difference(cmg.bc,pa.herds%>%st_union())%>%
   mutate(area=st_area(.),
-         Zone="U")%>%
-  select(HERD_NAME,area,Zone)
+         ZONE="U")%>%
+  select(HERD_NAME,area,ZONE)
 
 
 pa.herds <- pa.herds%>%
   rbind(unprotected)
 
-#mapview(pa.herds["Zone"])
+#mapview(pa.herds["ZONE"])
 ##make sure herd areas add up to total based of PA AREA
 herd.areas <- cmg.bc%>%
   mutate(herd_area=st_area(.))%>%
@@ -455,26 +459,26 @@ pa.herds<- pa.herds%>%
 pa.herds <- pa.herds%>%
   group_by(HERD_NAME)%>%
   mutate(area_p=(as.numeric(area)/sum(as.numeric(area)))*100)%>%
-  mutate(class=case_when(Zone%in%c("A2","B2","B3","B4","B5", "P")~"high",
-                         Zone%in%c("A1","B1")~"moderate",
-                         Zone%in%c("U")~"low")%>%as.character())
+  mutate(class=case_when(ZONE%in%c("A2","B2","B3","B4","B5", "P")~"high",
+                         ZONE%in%c("A1","B1")~"moderate",
+                         ZONE%in%c("U")~"low")%>%as.character())
 
 ##fix labels
 pa.herds <- pa.herds%>%
-  mutate(Zone.l=case_when(Zone%in%c("A1", "B1")~"Extraction Reviewed",
-                         Zone%in%c("A2")~"Extraction Moratorium",
-                         Zone%in%c("B3")~"Park Expansion",
-                         Zone%in%c("B2")~"Pre-existing Park Expansion",
-                         Zone%in%c("B4")~"Restoration Focus",
-                         Zone%in%c("B5")~"Indigenous Woodland",
-                         Zone%in%c("P")~"Pre-existing Park",
-                         Zone%in%c("U")~"Unprotected Land"))
+  mutate(ZONE.l=case_when(ZONE%in%c("A1", "B1")~"Extraction Reviewed",
+                         ZONE%in%c("A2")~"Extraction Moratorium",
+                         ZONE%in%c("B3")~"Park Expansion",
+                         ZONE%in%c("B2")~"Pre-existing Park Expansion",
+                         ZONE%in%c("B4")~"Restoration Focus",
+                         ZONE%in%c("B5")~"Indigenous Woodland",
+                         ZONE%in%c("P")~"Pre-existing Park",
+                         ZONE%in%c("U")~"Unprotected Land"))
 
 ##fix up factor levels
 pa.herds <- pa.herds%>%ungroup()%>%
   mutate(class=fct_relevel(class, "high", "moderate", "low"),
          HERD_NAME=fct_relevel(HERD_NAME,"Klinse-Za", "Kennedy Siding", "Burnt Pine", "Quintette", "Narraway"),
-         Zone.l=fct_relevel(Zone.l, "Extraction Moratorium","Indigenous Woodland","Park Expansion","Pre-existing Park","Restoration Focus", "Extraction Reviewed","Unprotected Land"))
+         ZONE.l=fct_relevel(ZONE.l, "Extraction Moratorium","Indigenous Woodland","Park Expansion","Pre-existing Park","Restoration Focus", "Extraction Reviewed","Unprotected Land"))
 
 ##summary stats
 ##Area of high protection
@@ -485,18 +489,18 @@ pa.herds%>%
 
 ##Area of high protection that wasn't already a park
 pa.herds%>%
-  filter(Zone!="P")%>%
+  filter(ZONE!="P")%>%
   filter(class%in%c("high"))%>%
   summarise(area=sum(area)/1E6)
 
 
 ###PLOT
-areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(Zone.l,25)))+
+areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(ZONE.l,25)))+
   geom_col()+
   facet_wrap(vars(HERD_NAME))+
   ylab("Area (%)")+
   xlab("Protection")+
-  labs(fill="Zone")+
+  labs(fill="ZONE")+
   theme_Publication()+
   scale_fill_brewer(palette = "Set2")+
   theme(legend.position = c(0.85,0.255),
@@ -523,11 +527,11 @@ pa.map
 ``` r
 ##table of PA
 pa.table <-pa.herds%>%
-            select(HERD_NAME, herd_area, Zone, Zone.l,area_p, area,class)%>%
+            select(HERD_NAME, herd_area, ZONE, ZONE.l,area_p, area,class)%>%
             mutate(herd_area=round(herd_area/1E6,0)%>%as.numeric(),
                    area_p=round(area_p,1)%>%as.numeric(),
                    area=round(area/1E6,0)%>%as.numeric())%>%
-            arrange(HERD_NAME, Zone,Zone.l)%>%
+            arrange(HERD_NAME, ZONE,ZONE.l)%>%
             as_tibble()%>%
             select(-geometry)%>%
             rename(Population=HERD_NAME,
@@ -535,12 +539,12 @@ pa.table <-pa.herds%>%
                    "Population area (km2)"=herd_area,
                    "Area (km2)"=area,
                    Class=class,
-                   Description=Zone.l)
+                   Description=ZONE.l)
 
 write_csv(pa.table,here::here("outputs", "PA_areas_byherd.csv"))
 ```
 
-### Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
+## Klinse-Za Population Trend- From Integrated Population Model of McNay et al 2020
 
 ``` r
 ###load data
@@ -586,13 +590,13 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
   geom_line() +
   geom_point(color="grey50", size=1) +
   ggtitle("Klinse-Za Population Trend",subtitle = "Recovery following Indigenous-led actions")+
-  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,430), expand = c(0, 0))+
   theme_bw()+
   xlab("Year")+
   ylab("Population estimate")+
   geom_label_repel(data=data.frame(label=c("Partnership Agreement\nsigned","Indigenous-led\nrecovery starts"),
                                  yrs=c(2020,2013),
-                                 est=c(88,38))%>%
+                                 est=c(90,38))%>%
                      mutate(label=as.factor(label)),
                    aes(x=yrs,y=est, label=label),
     size=3,
@@ -612,7 +616,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
 ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
 ```
 
-### Plot Disturbances
+## Plot Disturbances
 
 ``` r
 #Load disturbances
@@ -620,10 +624,10 @@ mines <- st_read(here::here("data", "HumanFootprints", "CL_mines.shp"))%>%
   st_transform(herds.cmg%>%st_crs())
 
 cb <- st_read(here::here("data", "cutblocks","VEG_CONSOLIDATED_CUT_BLOCKS_SP","CNS_CUT_BL_polygon.shp"))%>%
-  st_transform(herds.cmg%>%st_crs())
+  st_transform(herds.cmg%>%st_crs())%>%
+    st_make_valid()
 
 cb.clip <- cb%>%
-  st_make_valid()%>%
   st_crop(extent(cmg.bc))%>%
   st_intersection(cmg.bc%>%st_make_valid())
 
@@ -821,7 +825,7 @@ ggplot()+
 ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
 ```
 
-### Summary stats
+## Summary stats
 
 ``` r
 ###how many hectatres cut during the KZ caribou recovery actions ongoing?
@@ -829,7 +833,7 @@ st_erase = function(x, y) st_difference(x%>%st_make_valid(), st_union(st_combine
 
 cb%>%
   filter(HARVESTYR%in%2013:2020)%>%
-  st_intersection(herds.cmg%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
+  st_intersection(herds.cmg%>%st_make_valid()%>%filter(HERD_NAME%in%"Klinse-Za"))%>%
   mutate(area=units::set_units(st_area(.),"ha"))%>%
   summarise(sum=sum(area))
 ```
@@ -838,10 +842,9 @@ cb%>%
     ## geometry type:  MULTIPOLYGON
     ## dimension:      XY
     ## bbox:           xmin: 1137065 ymin: 1143034 xmax: 1239390 ymax: 1242020
-    ## epsg (SRID):    3005
-    ## proj4string:    +proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+    ## projected CRS:  NAD83 / BC Albers
     ##             sum                       geometry
-    ## 1 11026.36 [ha] MULTIPOLYGON (((1150057 119...
+    ## 1 11026.36 [ha] MULTIPOLYGON (((1177343 117...
 
 ``` r
 cb%>%
@@ -882,19 +885,19 @@ cb%>%
 kable(pa.table)
 ```
 
-| Population     | Population area (km2) | Zone | Description                 | Area (%) | Area (km2) | Class    |
+| Population     | Population area (km2) | ZONE | Description                 | Area (%) | Area (km2) | Class    |
 | :------------- | --------------------: | :--- | :-------------------------- | -------: | ---------: | :------- |
 | Klinse-Za      |                  5506 | A1   | Extraction Reviewed         |      0.2 |         10 | moderate |
 | Klinse-Za      |                  5506 | A2   | Extraction Moratorium       |     21.2 |       1167 | high     |
 | Klinse-Za      |                  5506 | B1   | Extraction Reviewed         |     15.9 |        876 | moderate |
-| Klinse-Za      |                  5506 | B2   | Pre-existing Park Expansion |      5.8 |        319 | high     |
-| Klinse-Za      |                  5506 | B3   | Park Expansion              |     30.4 |       1672 | high     |
+| Klinse-Za      |                  5506 | B2   | Pre-existing Park Expansion |      5.8 |        318 | high     |
+| Klinse-Za      |                  5506 | B3   | Park Expansion              |     30.4 |       1673 | high     |
 | Klinse-Za      |                  5506 | B4   | Restoration Focus           |      5.8 |        321 | high     |
 | Klinse-Za      |                  5506 | B5   | Indigenous Woodland         |      4.4 |        243 | high     |
 | Klinse-Za      |                  5506 | P    | Pre-existing Park           |      1.8 |        100 | high     |
 | Klinse-Za      |                  5506 | U    | Unprotected Land            |     14.5 |        799 | low      |
-| Kennedy Siding |                  2962 | A1   | Extraction Reviewed         |      0.0 |          1 | moderate |
-| Kennedy Siding |                  2962 | A2   | Extraction Moratorium       |     34.2 |       1012 | high     |
+| Kennedy Siding |                  2962 | A1   | Extraction Reviewed         |      0.1 |          4 | moderate |
+| Kennedy Siding |                  2962 | A2   | Extraction Moratorium       |     34.1 |       1009 | high     |
 | Kennedy Siding |                  2962 | B1   | Extraction Reviewed         |      3.3 |         98 | moderate |
 | Kennedy Siding |                  2962 | B3   | Park Expansion              |      0.3 |         10 | high     |
 | Kennedy Siding |                  2962 | P    | Pre-existing Park           |     14.6 |        433 | high     |
@@ -903,8 +906,8 @@ kable(pa.table)
 | Burnt Pine     |                   710 | A2   | Extraction Moratorium       |     21.4 |        152 | high     |
 | Burnt Pine     |                   710 | B1   | Extraction Reviewed         |     14.2 |        101 | moderate |
 | Burnt Pine     |                   710 | U    | Unprotected Land            |     64.0 |        454 | low      |
-| Quintette      |                  6078 | A1   | Extraction Reviewed         |      2.2 |        132 | moderate |
-| Quintette      |                  6078 | A2   | Extraction Moratorium       |     18.1 |       1098 | high     |
+| Quintette      |                  6078 | A1   | Extraction Reviewed         |      2.8 |        169 | moderate |
+| Quintette      |                  6078 | A2   | Extraction Moratorium       |     17.4 |       1060 | high     |
 | Quintette      |                  6078 | P    | Pre-existing Park           |      9.9 |        602 | high     |
 | Quintette      |                  6078 | U    | Unprotected Land            |     69.9 |       4247 | low      |
 | Narraway       |                  6372 | A1   | Extraction Reviewed         |      0.6 |         41 | moderate |
@@ -915,7 +918,7 @@ kable(pa.table)
 ``` r
 ##size of new conservation area overlapping with CMG herds
 pa.table%>%
-  filter(!Zone%in%c("B2","U","P"))%>%
+  filter(!ZONE%in%c("B2","U","P"))%>%
   summarise(area=sum(`Area (km2)`))%>%
   as.numeric()%>%
   print()
