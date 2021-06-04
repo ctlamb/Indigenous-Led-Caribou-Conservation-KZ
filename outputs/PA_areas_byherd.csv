@@ -1,28 +1,29 @@
 Population,Population area (km2),ZONE,Description,Area (%),Area (km2),Class
-Klinse-Za,5506,A1,Extraction Reviewed,0.2,10,moderate
-Klinse-Za,5506,A2,Extraction Moratorium,21.2,1167,high
-Klinse-Za,5506,B1,Extraction Reviewed,15.9,876,moderate
-Klinse-Za,5506,B2,Pre-existing Park Expansion,5.8,318,high
-Klinse-Za,5506,B3,Park Expansion,30.4,1673,high
-Klinse-Za,5506,B4,Restoration Focus,5.8,321,high
-Klinse-Za,5506,B5,Indigenous Woodland,4.4,243,high
-Klinse-Za,5506,P,Pre-existing Park,1.8,100,high
-Klinse-Za,5506,U,Unprotected Land,14.5,799,low
-Kennedy Siding,2962,A1,Extraction Reviewed,0.1,4,moderate
-Kennedy Siding,2962,A2,Extraction Moratorium,34.1,1009,high
-Kennedy Siding,2962,B1,Extraction Reviewed,3.3,98,moderate
-Kennedy Siding,2962,B3,Park Expansion,0.3,10,high
-Kennedy Siding,2962,P,Pre-existing Park,14.6,433,high
-Kennedy Siding,2962,U,Unprotected Land,47.5,1408,low
-Burnt Pine,710,A1,Extraction Reviewed,0.4,3,moderate
-Burnt Pine,710,A2,Extraction Moratorium,21.4,152,high
-Burnt Pine,710,B1,Extraction Reviewed,14.2,101,moderate
-Burnt Pine,710,U,Unprotected Land,64,454,low
-Quintette,6078,A1,Extraction Reviewed,2.8,169,moderate
-Quintette,6078,A2,Extraction Moratorium,17.4,1060,high
-Quintette,6078,P,Pre-existing Park,9.9,602,high
-Quintette,6078,U,Unprotected Land,69.9,4247,low
-Narraway,6372,A1,Extraction Reviewed,0.6,41,moderate
-Narraway,6372,A2,Extraction Moratorium,16.5,1049,high
-Narraway,6372,P,Pre-existing Park,20.2,1289,high
-Narraway,6372,U,Unprotected Land,62.7,3992,low
+Klinse-Za,6498,A1,Extraction Reviewed,0.2,11,moderate
+Klinse-Za,6498,A2,Extraction Moratorium,21.8,1413,high
+Klinse-Za,6498,B1,Extraction Reviewed,16.1,1044,moderate
+Klinse-Za,6498,B2,Pre-existing Park Expansion,4.9,318,high
+Klinse-Za,6498,B3,Park Expansion,26,1687,high
+Klinse-Za,6498,B4,Restoration Focus,5.2,340,high
+Klinse-Za,6498,B5,Indigenous Woodland,4.3,277,high
+Klinse-Za,6498,P,Pre-existing Park,1.6,103,high
+Klinse-Za,6498,U,Unprotected Land,20.1,1304,low
+Kennedy Siding,2127,A1,Extraction Reviewed,0.2,3,moderate
+Kennedy Siding,2127,A2,Extraction Moratorium,25.8,549,high
+Kennedy Siding,2127,B1,Extraction Reviewed,0.1,3,moderate
+Kennedy Siding,2127,B3,Park Expansion,0.1,1,high
+Kennedy Siding,2127,P,Pre-existing Park,14.7,313,high
+Kennedy Siding,2127,U,Unprotected Land,59.1,1258,low
+Burnt Pine,1717,A1,Extraction Reviewed,0.2,3,moderate
+Burnt Pine,1717,A2,Extraction Moratorium,23,395,high
+Burnt Pine,1717,B1,Extraction Reviewed,10,172,moderate
+Burnt Pine,1717,P,Pre-existing Park,7.1,121,high
+Burnt Pine,1717,U,Unprotected Land,59.8,1026,low
+Quintette,5885,A1,Extraction Reviewed,2.9,169,moderate
+Quintette,5885,A2,Extraction Moratorium,17,999,high
+Quintette,5885,P,Pre-existing Park,3.2,187,high
+Quintette,5885,U,Unprotected Land,77,4529,low
+Narraway,5341,A1,Extraction Reviewed,0.8,41,moderate
+Narraway,5341,A2,Extraction Moratorium,21.3,1135,high
+Narraway,5341,P,Pre-existing Park,20.1,1073,high
+Narraway,5341,U,Unprotected Land,57.9,3091,low

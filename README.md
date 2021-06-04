@@ -2,7 +2,7 @@ Indigenous-led Caribou Conservation
 ================
 Clayton T. Lamb, Liber Ero Postdoctoral Fellow, University of British
 Columbia
-19 May, 2021
+04 June, 2021
 
 ## Load Data
 
@@ -104,11 +104,9 @@ theme_Publication <- function(...){
 
 ``` r
 #Load caribou herd data and clean up
-herds.bc <- st_read(here::here("data", "caribouherds", "BC_Caribou_Range_CL.shp"))%>%
+herds.bc <- st_read(here::here("data", "caribouherds", "u_bc_herds_2021_with_popstatus.shp"))%>%
   mutate(HERD_NAME=as.character(HERD_NAME))%>%
-  mutate(HERD_NAME=case_when(HERD_NAME%in%c("Scott", "Moberly")~"Klinse-Za", TRUE~HERD_NAME))%>%
-  mutate(HERD_NAME=case_when(HERD_NAME%in%c("Klinse-Za") & STMTDCRBPP%in% "20-44"~"Scott", TRUE~HERD_NAME))%>%
-  drop_na(RISK_STAT)%>%
+  mutate(HERD_NAME=case_when(HERD_NAME%in%c("Moberly")~"Klinse-Za", TRUE~HERD_NAME))%>%
   select(HERD_NAME)%>%
   st_transform(3005)
 
@@ -124,13 +122,17 @@ herds <- rbind(herds.ab,herds.bc)%>%
   summarize()
 
 herds.cmg <- herds %>%
-  filter(HERD_NAME%in%c("Burnt Pine", "Kennedy Siding", "Klinse-Za","Quintette","Narraway", "Jasper", "A La Peche","Little Smoky","Redrock-Prairie Creek"))%>%
+  filter(HERD_NAME%in%c("Burnt Pine", "Kennedy Siding", "Klinse-Za","Quintette","Narraway", "Jasper", "A La Peche","Little Smoky","Redrock-Prairie Creek","Scott"))%>%
   select(HERD_NAME)%>%
   st_transform(3005)
 
-clip.extent <- extent(herds.cmg%>%filter(HERD_NAME%in%c("Burnt Pine", "Kennedy Siding", "Klinse-Za","Quintette","Narraway")))
+clip.extent <- extent(herds.cmg%>%filter(HERD_NAME%in%c("Burnt Pine", "Kennedy Siding", "Klinse-Za","Quintette","Narraway","Scott")))
 
 herds <- herds%>%filter(!HERD_NAME%in%herds.cmg$HERD_NAME)
+
+##load historic hab
+hist.hab <- st_read(here::here("data", "historichab", "u_carto_historic_range_IPM.shp"))%>%
+  st_transform(3005)
 
 
 #Treaty 8 boundary
@@ -201,12 +203,13 @@ cmg.extent <- extent(c(10.5E5,14E5,9.5E5,12.5E5))%>%
   st_set_crs(st_crs(herds.cmg))
 
 #PLOT
+extirpated.herds <- c("Burnt Pine", "Central Rockies","Columbia South", "Frisby Boulder", "George Mountain", "Monashee", "Purcell Central", "Purcells South", "Scott", "South Selkirks", "Maligne", "Banff")
 #Inset Map of western North America
 westernNA <- ggplot()+
   geom_sf(data = bord, inherit.aes = FALSE, fill="grey70", color="black", size=0.1)+
   geom_sf(data = herds, inherit.aes = FALSE, fill="black", color=NA, size=0.1, alpha=0.6)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="grey30", size=0.1, alpha=0.2)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee", "Scott"))%>%st_buffer(10000), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c(extirpated.herds)), inherit.aes = FALSE, fill="brown", color=NA, alpha=0.8)+
   geom_sf(data = t8d, inherit.aes = FALSE, fill=NA, color="white", size=0.2, linetype="dashed")+
   geom_sf(data = t8, inherit.aes = FALSE, fill=NA, color="white", size=0.3)+
   geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color=NA)+
@@ -228,12 +231,12 @@ westernNA <- ggplot()+
 
 ##legend
 leg <-ggplot()+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Columbia South", "Maligne", "Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, aes(fill="Extirpated"), alpha=0.5)+
-  geom_sf(data = herds, inherit.aes = FALSE, aes(color="Central Mountain Group Caribou"), size=0.5, alpha=0.5)+
-  geom_sf(data = herds.cmg, inherit.aes = FALSE, aes(fill="Mountain & Boreal Caribou"), size=1, alpha=0.2)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c(extirpated.herds)), inherit.aes = FALSE, aes(fill="Extirpated/Historic Range"), color="black", alpha=0.4)+
+  geom_sf(data = herds, inherit.aes = FALSE, aes(color="Central Mountain Group Caribou"), size=1, alpha=0.5)+
+  geom_sf(data = herds.cmg, inherit.aes = FALSE, aes(fill="Mountain & Boreal Caribou"), size=0.01, alpha=0.2)+
   scale_x_continuous(limits = c(11.3E5,13.92E5), expand = c(0, 0)) +
   scale_y_continuous(limits = c(10.1E5,12.5E5), expand = c(0, 0))+
-  scale_fill_manual(values=c("Extirpated"="brown",
+  scale_fill_manual(values=c("Extirpated/Historic Range"="brown",
                              "Mountain & Boreal Caribou"= "black"),
                     name="")+
   scale_color_manual(values=c("Central Mountain Group Caribou"="black"),
@@ -257,7 +260,7 @@ leg <-ggplot()+
 leg<- ggpubr::get_legend(leg)%>%
   as_ggplot()
 
-ggsave(plot=leg,here::here("outputs", "SA_legend.png"), height=0.6, width=6.5)
+ggsave(plot=leg,here::here("outputs", "SA_legend.png"), height=0.6, width=7.5)
 
 #Study area map
 sa.map <- ggplot()+
@@ -265,10 +268,11 @@ sa.map <- ggplot()+
   geom_raster(data = hill.small, aes(x = x, y = y, fill = layer, alpha=1-layer),fill="gray20") +
   geom_sf(data = bord, inherit.aes = FALSE, fill=NA, color="black", size=0.1)+
   geom_sf(data = lake, inherit.aes = FALSE, fill="lightskyblue3", color=NA, size=0.1)+
-  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="brown", color="brown", alpha=0.5)+
-  geom_sf(data = herds%>%filter(!HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.5)+
-  geom_sf(data = herds%>%filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.2)+
+  geom_sf(data = herds%>%rbind(herds.cmg)%>%filter(HERD_NAME%in%extirpated.herds), inherit.aes = FALSE, fill="brown", color="brown", alpha=0.4)+
+  geom_sf(data = herds%>%filter(!HERD_NAME%in%extirpated.herds), inherit.aes = FALSE, fill="black", color="black", size=0, alpha=0.5)+
+  geom_sf(data = herds%>%filter(HERD_NAME%in%extirpated.herds), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.2)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="black", size=1, alpha=0.2)+
+   geom_sf(data = hist.hab, inherit.aes = FALSE, fill="brown", color="black", size=0, alpha=0.3)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
   scale_fill_gradientn(colours=brewer.pal(3,"YlGn")%>%rev(), na.value="light blue")+
   guides(fill=FALSE, color=FALSE, alpha=FALSE)+
@@ -281,7 +285,8 @@ sa.map <- ggplot()+
   scale_y_continuous(limits = c(9.5E5,12.5E5), expand = c(0, 0)) +
   #coord_sf(xlim = c(11E5,14E5),ylim = c(9.9E5,12.5E5))+
   annotation_custom(ggplotGrob(westernNA), xmin =10.3E5, xmax = 12.35E5, ymin = 9.55E5, ymax = 10.95E5)+
-  geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())), aes(X, Y, label = HERD_NAME), colour = "grey90",size=2.5)+
+  geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())%>%filter(HERD_NAME%in%"Klinse-Za")), aes(X, Y, label = HERD_NAME), colour = "grey90",size=3.5)+
+    geom_text(data = as.data.frame(herds.cmg%>%cbind(herds.cmg%>%st_centroid()%>%st_coordinates())%>%filter(!HERD_NAME%in%"Klinse-Za")), aes(X, Y, label = HERD_NAME), colour = "grey90",size=2.5)+
   ggrepel::geom_label_repel(
     data = rv,
     aes(label = str_wrap(lab,13), geometry = geometry),
@@ -292,7 +297,8 @@ sa.map <- ggplot()+
     nudge_x=c(20000,20000),
     nudge_y=c(25000,-15000),
     hjust = 0,
-    force=10
+    force=10,
+    fill = alpha(c("white"),0.4)
   )+
   annotation_scale(location = "br", width_hint = 0.25, text_col="grey90", text_cex = 0.8)+
   annotation_north_arrow(height = unit(1, "cm"), width = unit(1, "cm"),location = "tl", which_north = "true", style=north_arrow_orienteering(text_col="grey", text_size = 5))
@@ -370,7 +376,7 @@ PA <- ggplot()+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=0.6)+
   geom_sf(data = herds%>%
             rbind(herds.cmg)%>%
-            filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+            filter(HERD_NAME%in%extirpated.herds),
           inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = park, inherit.aes = FALSE, fill="grey", color=NA, alpha=0.7)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
@@ -517,7 +523,7 @@ areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(ZONE.l,25)))+
 ##PLOT TOGETHER
 pa.map <- ggarrange(PA, areas, ncol = 2, nrow = 1, labels="AUTO")
 
-ggsave(plot=pa.map,here::here("outputs", "PA_map.png"), height=5, width=10)
+ggsave(plot=pa.map,here::here("outputs", "Figure5.png"), height=5.1, width=10)
 
 pa.map
 ```
@@ -557,7 +563,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
   geom_line() +
   geom_point(color="grey50", size=1) +
   ggtitle("Klinse-Za Population Trend")+
-  scale_y_continuous(limits = c(0,400), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,300), expand = c(0, 0))+
   theme_bw()+
   xlab("Year")+
   ylab("Population estimate")+
@@ -590,7 +596,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
   geom_line() +
   geom_point(color="grey50", size=1) +
   ggtitle("Klinse-Za Population Trend",subtitle = "Recovery following Indigenous-led actions")+
-  scale_y_continuous(limits = c(0,430), expand = c(0, 0))+
+  scale_y_continuous(limits = c(0,300), expand = c(0, 0))+
   theme_bw()+
   xlab("Year")+
   ylab("Population estimate")+
@@ -746,7 +752,7 @@ ggplot()+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=1)+
   geom_sf(data = herds%>%
             rbind(herds.cmg)%>%
-            filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+            filter(HERD_NAME%in%extirpated.herds),
           inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
     geom_sf(data = dam,  inherit.aes = FALSE,  color="black", fill="white", size=3, pch=25)+
@@ -802,7 +808,7 @@ ggplot()+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill=NA, color="black", size=1)+
   geom_sf(data = herds%>%
             rbind(herds.cmg)%>%
-            filter(HERD_NAME%in%c("Maligne","Burnt Pine", "Purcells South", "South Selkirks", "Banff", "Allan Creek", "Duncan", "Purcell Central", "George Mtn", "Central Rockies", "Monashee","Scott")),
+            filter(HERD_NAME%in%extirpated.herds),
           inherit.aes = FALSE, fill=NA, color="brown", size=1)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
       geom_sf(data = dam,  inherit.aes = FALSE,  color="black", fill="white", size=5, pch=25)+
@@ -841,10 +847,10 @@ cb%>%
     ## Simple feature collection with 1 feature and 1 field
     ## geometry type:  MULTIPOLYGON
     ## dimension:      XY
-    ## bbox:           xmin: 1137065 ymin: 1143034 xmax: 1239390 ymax: 1242020
+    ## bbox:           xmin: 1137065 ymin: 1137752 xmax: 1253166 ymax: 1242659
     ## projected CRS:  NAD83 / BC Albers
     ##             sum                       geometry
-    ## 1 11026.36 [ha] MULTIPOLYGON (((1177343 117...
+    ## 1 12941.04 [ha] MULTIPOLYGON (((1182908 113...
 
 ``` r
 cb%>%
@@ -887,33 +893,34 @@ kable(pa.table)
 
 | Population     | Population area (km2) | ZONE | Description                 | Area (%) | Area (km2) | Class    |
 | :------------- | --------------------: | :--- | :-------------------------- | -------: | ---------: | :------- |
-| Klinse-Za      |                  5506 | A1   | Extraction Reviewed         |      0.2 |         10 | moderate |
-| Klinse-Za      |                  5506 | A2   | Extraction Moratorium       |     21.2 |       1167 | high     |
-| Klinse-Za      |                  5506 | B1   | Extraction Reviewed         |     15.9 |        876 | moderate |
-| Klinse-Za      |                  5506 | B2   | Pre-existing Park Expansion |      5.8 |        318 | high     |
-| Klinse-Za      |                  5506 | B3   | Park Expansion              |     30.4 |       1673 | high     |
-| Klinse-Za      |                  5506 | B4   | Restoration Focus           |      5.8 |        321 | high     |
-| Klinse-Za      |                  5506 | B5   | Indigenous Woodland         |      4.4 |        243 | high     |
-| Klinse-Za      |                  5506 | P    | Pre-existing Park           |      1.8 |        100 | high     |
-| Klinse-Za      |                  5506 | U    | Unprotected Land            |     14.5 |        799 | low      |
-| Kennedy Siding |                  2962 | A1   | Extraction Reviewed         |      0.1 |          4 | moderate |
-| Kennedy Siding |                  2962 | A2   | Extraction Moratorium       |     34.1 |       1009 | high     |
-| Kennedy Siding |                  2962 | B1   | Extraction Reviewed         |      3.3 |         98 | moderate |
-| Kennedy Siding |                  2962 | B3   | Park Expansion              |      0.3 |         10 | high     |
-| Kennedy Siding |                  2962 | P    | Pre-existing Park           |     14.6 |        433 | high     |
-| Kennedy Siding |                  2962 | U    | Unprotected Land            |     47.5 |       1408 | low      |
-| Burnt Pine     |                   710 | A1   | Extraction Reviewed         |      0.4 |          3 | moderate |
-| Burnt Pine     |                   710 | A2   | Extraction Moratorium       |     21.4 |        152 | high     |
-| Burnt Pine     |                   710 | B1   | Extraction Reviewed         |     14.2 |        101 | moderate |
-| Burnt Pine     |                   710 | U    | Unprotected Land            |     64.0 |        454 | low      |
-| Quintette      |                  6078 | A1   | Extraction Reviewed         |      2.8 |        169 | moderate |
-| Quintette      |                  6078 | A2   | Extraction Moratorium       |     17.4 |       1060 | high     |
-| Quintette      |                  6078 | P    | Pre-existing Park           |      9.9 |        602 | high     |
-| Quintette      |                  6078 | U    | Unprotected Land            |     69.9 |       4247 | low      |
-| Narraway       |                  6372 | A1   | Extraction Reviewed         |      0.6 |         41 | moderate |
-| Narraway       |                  6372 | A2   | Extraction Moratorium       |     16.5 |       1049 | high     |
-| Narraway       |                  6372 | P    | Pre-existing Park           |     20.2 |       1289 | high     |
-| Narraway       |                  6372 | U    | Unprotected Land            |     62.7 |       3992 | low      |
+| Klinse-Za      |                  6498 | A1   | Extraction Reviewed         |      0.2 |         11 | moderate |
+| Klinse-Za      |                  6498 | A2   | Extraction Moratorium       |     21.8 |       1413 | high     |
+| Klinse-Za      |                  6498 | B1   | Extraction Reviewed         |     16.1 |       1044 | moderate |
+| Klinse-Za      |                  6498 | B2   | Pre-existing Park Expansion |      4.9 |        318 | high     |
+| Klinse-Za      |                  6498 | B3   | Park Expansion              |     26.0 |       1687 | high     |
+| Klinse-Za      |                  6498 | B4   | Restoration Focus           |      5.2 |        340 | high     |
+| Klinse-Za      |                  6498 | B5   | Indigenous Woodland         |      4.3 |        277 | high     |
+| Klinse-Za      |                  6498 | P    | Pre-existing Park           |      1.6 |        103 | high     |
+| Klinse-Za      |                  6498 | U    | Unprotected Land            |     20.1 |       1304 | low      |
+| Kennedy Siding |                  2127 | A1   | Extraction Reviewed         |      0.2 |          3 | moderate |
+| Kennedy Siding |                  2127 | A2   | Extraction Moratorium       |     25.8 |        549 | high     |
+| Kennedy Siding |                  2127 | B1   | Extraction Reviewed         |      0.1 |          3 | moderate |
+| Kennedy Siding |                  2127 | B3   | Park Expansion              |      0.1 |          1 | high     |
+| Kennedy Siding |                  2127 | P    | Pre-existing Park           |     14.7 |        313 | high     |
+| Kennedy Siding |                  2127 | U    | Unprotected Land            |     59.1 |       1258 | low      |
+| Burnt Pine     |                  1717 | A1   | Extraction Reviewed         |      0.2 |          3 | moderate |
+| Burnt Pine     |                  1717 | A2   | Extraction Moratorium       |     23.0 |        395 | high     |
+| Burnt Pine     |                  1717 | B1   | Extraction Reviewed         |     10.0 |        172 | moderate |
+| Burnt Pine     |                  1717 | P    | Pre-existing Park           |      7.1 |        121 | high     |
+| Burnt Pine     |                  1717 | U    | Unprotected Land            |     59.8 |       1026 | low      |
+| Quintette      |                  5885 | A1   | Extraction Reviewed         |      2.9 |        169 | moderate |
+| Quintette      |                  5885 | A2   | Extraction Moratorium       |     17.0 |        999 | high     |
+| Quintette      |                  5885 | P    | Pre-existing Park           |      3.2 |        187 | high     |
+| Quintette      |                  5885 | U    | Unprotected Land            |     77.0 |       4529 | low      |
+| Narraway       |                  5341 | A1   | Extraction Reviewed         |      0.8 |         41 | moderate |
+| Narraway       |                  5341 | A2   | Extraction Moratorium       |     21.3 |       1135 | high     |
+| Narraway       |                  5341 | P    | Pre-existing Park           |     20.1 |       1073 | high     |
+| Narraway       |                  5341 | U    | Unprotected Land            |     57.9 |       3091 | low      |
 
 ``` r
 ##size of new conservation area overlapping with CMG herds
@@ -924,4 +931,4 @@ pa.table%>%
   print()
 ```
 
-    ## [1] 7986
+    ## [1] 8242
