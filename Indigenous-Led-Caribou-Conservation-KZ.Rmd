@@ -271,7 +271,7 @@ leg <-ggplot()+
 leg<- ggpubr::get_legend(leg)%>%
   as_ggplot()
 
-ggsave(plot=leg,here::here("outputs", "SA_legend.png"), height=0.6, width=7.5)
+ggsave(plot=leg,here::here("outputs", "SA_legend.png"), height=0.6, width=7.5, dpi=600)
 
 #Study area map
 sa.map <- ggplot()+
@@ -314,7 +314,7 @@ sa.map <- ggplot()+
   annotation_scale(location = "br", width_hint = 0.25, text_col="grey90", text_cex = 0.8)+
   annotation_north_arrow(height = unit(1, "cm"), width = unit(1, "cm"),location = "tl", which_north = "true", style=north_arrow_orienteering(text_col="grey", text_size = 5))
 
-ggsave(plot=sa.map,here::here("outputs", "cmg_map.png"), height=4, width=5)
+ggsave(plot=sa.map,here::here("outputs", "cmg_map.png"), height=4, width=5, dpi=600)
 
 ##Plot Together
 sa.map
@@ -532,7 +532,7 @@ areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(ZONE.l,25)))+
 ##PLOT TOGETHER
 pa.map <- ggarrange(PA, areas, ncol = 2, nrow = 1, labels="AUTO")
 
-ggsave(plot=pa.map,here::here("outputs", "Figure5.png"), height=5.1, width=10)
+ggsave(plot=pa.map,here::here("outputs", "Figure5.png"), height=5.1, width=10, dpi=600)
 
 pa.map
 
@@ -588,7 +588,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za" & yrs<2014),aes(x=yrs,y=est))+
                    force=0.1
   )
 
-ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4)
+ggsave(here::here("outputs", "kz_trend_pre.png"), height=4, width=4, dpi=600)
 
 
 
@@ -617,7 +617,7 @@ ggplot(data=df%>%filter(herd%in%"Klinse-Za"),aes(x=yrs,y=est))+
     force=0.1
   )
 
-ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4)
+ggsave(here::here("outputs", "kz_trend.png"), height=4, width=4, dpi=600)
 
 ```
 
@@ -727,7 +727,7 @@ leg.dist <-ggplot()+
 leg.dist <- ggpubr::get_legend(leg.dist)%>%
   as_ggplot()
 
-ggsave(plot=leg.dist,here::here("outputs", "disturbance_legend.png"), height=0.6, width=6.2)
+ggsave(plot=leg.dist,here::here("outputs", "disturbance_legend.png"), height=0.6, width=6.2, dpi=600)
 
 ch <- st_read(here::here("data", "CH_638_Rangifer_tarandus_caribou_SouthMountain", "CH_638_Rangifer_tarandus_caribou_SouthMountain.shp"))%>%
   st_make_grid()%>%
@@ -768,7 +768,7 @@ ggplot()+
 
 
 
-ggsave(here::here("outputs", "disturbance_map1.png"), height=4.5, width=5)
+ggsave(here::here("outputs", "disturbance_map1.png"), height=4.5, width=5, dpi=600)
 
 
 ##PLOT KZ ONLY
@@ -821,7 +821,7 @@ ggplot()+
 
 
 
-ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5)
+ggsave(here::here("outputs", "disturbance_map2.png"), height=4.6, width=5, dpi=600)
 ```
 
 ## Summary stats
