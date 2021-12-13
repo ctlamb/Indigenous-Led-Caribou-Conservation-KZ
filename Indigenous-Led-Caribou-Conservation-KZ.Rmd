@@ -283,7 +283,7 @@ sa.map <- ggplot()+
   geom_sf(data = herds%>%filter(!HERD_NAME%in%extirpated.herds), inherit.aes = FALSE, fill="black", color="black", size=0, alpha=0.5)+
   geom_sf(data = herds%>%filter(HERD_NAME%in%extirpated.herds), inherit.aes = FALSE, fill="black", color="black", size=0.5, alpha=0.2)+
   geom_sf(data = herds.cmg, inherit.aes = FALSE, fill="black", color="black", size=1, alpha=0.2)+
-   geom_sf(data = hist.hab, inherit.aes = FALSE, fill="brown", color="black", size=0, alpha=0.3)+
+  geom_sf(data = hist.hab, inherit.aes = FALSE, fill="brown", color="black", size=0, alpha=0.3)+
   geom_sf(data = rv%>%st_centroid(), inherit.aes = FALSE, fill="black", size=1.5)+
   scale_fill_gradientn(colours=brewer.pal(3,"YlGn")%>%rev(), na.value="light blue")+
   guides(fill=FALSE, color=FALSE, alpha=FALSE)+
@@ -307,7 +307,7 @@ sa.map <- ggplot()+
     segment.size  = 0.4,
     nudge_x=c(20000,20000),
     nudge_y=c(25000,-15000),
-    hjust = 0,
+    vjust=0.5,
     force=10,
     fill = alpha(c("white"),0.4)
   )+
@@ -518,7 +518,7 @@ areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(ZONE.l,25)))+
   labs(fill="ZONE")+
   theme_Publication()+
   scale_fill_brewer(palette = "Set2")+
-  theme(legend.position = c(0.85,0.255),
+  theme(legend.position = c(0.85,0.27),
         legend.direction = "vertical",
         legend.key.size= unit(0.5, "cm"),
         legend.spacing = unit(0.05, "cm"),
@@ -532,7 +532,7 @@ areas <- ggplot(data=pa.herds, aes(x=class,y=area_p, fill=str_wrap(ZONE.l,25)))+
 ##PLOT TOGETHER
 pa.map <- ggarrange(PA, areas, ncol = 2, nrow = 1, labels="AUTO")
 
-ggsave(plot=pa.map,here::here("outputs", "Figure5.png"), height=5.1, width=10, dpi=600)
+ggsave(plot=pa.map,here::here("outputs", "Figure5.png"), height=5.1, width=10, dpi=600, bg = "white")
 
 pa.map
 
